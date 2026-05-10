@@ -1,0 +1,350 @@
+nohup: ignoring input
+/workspace/dq-bart/.venv/lib/python3.10/site-packages/torch/cuda/__init__.py:180: UserWarning: CUDA initialization: The NVIDIA driver on your system is too old (found version 12070). Please update your GPU driver by downloading and installing a new version from the URL: http://www.nvidia.com/Download/index.aspx Alternatively, go to: https://pytorch.org to install a PyTorch version that has been compiled with your version of the CUDA driver. (Triggered internally at /pytorch/c10/cuda/CUDAFunctions.cpp:119.)
+  return torch._C._cuda_getDeviceCount() > 0
+05/10/2026 11:39:00 - INFO - __main__ -   Distributed environment: NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cpu
+
+05/10/2026 11:39:00 - WARNING - __main__ -   Namespace(dataset_name='/workspace/data/cnn_dm_splits_v1', dataset_config_name=None, train_file=None, validation_file=None, ignore_pad_token_for_loss=True, max_source_length=1024, source_prefix=None, preprocessing_num_workers=None, overwrite_cache=None, max_target_length=128, val_max_target_length=None, pad_to_max_length=False, model_name_or_path='/workspace/models/hf/facebook-bart-large-cnn', config_name=None, tokenizer_name=None, text_column=None, summary_column=None, use_slow_tokenizer=False, per_device_train_batch_size=1, per_device_eval_batch_size=4, learning_rate=3e-05, weight_decay=0.0, num_train_epochs=1, max_train_steps=50, gradient_accumulation_steps=1, lr_scheduler_type=<SchedulerType.LINEAR: 'linear'>, warmup_ratio=0.05, output_dir='/workspace/models/dq-bart/E_DQBART_8BIT_SMOKE', seed=28, model_type=None, teacher_model='/workspace/models/hf/facebook-bart-large-cnn', student_model='/workspace/models/hf/facebook-bart-large-cnn', pred_distill=True, intermediate_distill=False, weight_bits=8, input_bits=8, clip_val=2.5, length_penalty=2.0, max_length=142, min_length=56, num_beams=4, do_train=True, do_test=False, test_teacher=False, distill_encoder=3, distill_decoder=1, log_steps=20, local_rank=0, weighted=False, new_distill_map=False, max_eval_batches=10, task_weight=1, logits_weight=1, hid_weight=1, dataset_task_name='cnn_dailymail')
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /root/.netrc.
+wandb: Currently logged in as: iankirby1991 (iankirby1991-university-of-galway) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /workspace/dq-bart/wandb/run-20260510_113901-z7uuu1oc
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run E_DQBART_8BIT_SMOKE
+wandb: ⭐️ View project at https://wandb.ai/iankirby1991-university-of-galway/dq-bart
+wandb: 🚀 View run at https://wandb.ai/iankirby1991-university-of-galway/dq-bart/runs/z7uuu1oc
+wandb: Detected [huggingface_hub.inference] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+05/10/2026 11:39:02 - INFO - __main__ -   Loading dataset splits from disk: /workspace/data/cnn_dm_splits_v1
+loading configuration file /workspace/models/hf/facebook-bart-large-cnn/config.json
+Model config BartConfig {
+  "_name_or_path": "/workspace/models/hf/facebook-bart-large-cnn",
+  "_num_labels": 3,
+  "activation_dropout": 0.0,
+  "activation_function": "gelu",
+  "add_final_layer_norm": false,
+  "architectures": [
+    "BartForConditionalGeneration"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 0,
+  "classif_dropout": 0.0,
+  "classifier_dropout": 0.0,
+  "d_model": 1024,
+  "decoder_attention_heads": 16,
+  "decoder_ffn_dim": 4096,
+  "decoder_layerdrop": 0.0,
+  "decoder_layers": 12,
+  "decoder_start_token_id": 2,
+  "dropout": 0.1,
+  "early_stopping": true,
+  "encoder_attention_heads": 16,
+  "encoder_ffn_dim": 4096,
+  "encoder_layerdrop": 0.0,
+  "encoder_layers": 12,
+  "eos_token_id": 2,
+  "force_bos_token_to_be_generated": true,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "gradient_checkpointing": false,
+  "id2label": {
+    "0": "LABEL_0",
+    "1": "LABEL_1",
+    "2": "LABEL_2"
+  },
+  "init_std": 0.02,
+  "is_encoder_decoder": true,
+  "label2id": {
+    "LABEL_0": 0,
+    "LABEL_1": 1,
+    "LABEL_2": 2
+  },
+  "length_penalty": 2.0,
+  "max_length": 142,
+  "max_position_embeddings": 1024,
+  "min_length": 56,
+  "model_type": "bart",
+  "no_repeat_ngram_size": 3,
+  "normalize_before": false,
+  "num_beams": 4,
+  "num_hidden_layers": 12,
+  "output_past": true,
+  "pad_token_id": 1,
+  "prefix": " ",
+  "scale_embedding": false,
+  "task_specific_params": {
+    "summarization": {
+      "early_stopping": true,
+      "length_penalty": 2.0,
+      "max_length": 142,
+      "min_length": 56,
+      "no_repeat_ngram_size": 3,
+      "num_beams": 4
+    }
+  },
+  "transformers_version": "4.21.3",
+  "use_cache": true,
+  "vocab_size": 50264
+}
+
+Could not locate the tokenizer configuration file, will try to use the model config instead.
+loading configuration file /workspace/models/hf/facebook-bart-large-cnn/config.json
+Model config BartConfig {
+  "_name_or_path": "/workspace/models/hf/facebook-bart-large-cnn",
+  "_num_labels": 3,
+  "activation_dropout": 0.0,
+  "activation_function": "gelu",
+  "add_final_layer_norm": false,
+  "architectures": [
+    "BartForConditionalGeneration"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 0,
+  "classif_dropout": 0.0,
+  "classifier_dropout": 0.0,
+  "d_model": 1024,
+  "decoder_attention_heads": 16,
+  "decoder_ffn_dim": 4096,
+  "decoder_layerdrop": 0.0,
+  "decoder_layers": 12,
+  "decoder_start_token_id": 2,
+  "dropout": 0.1,
+  "early_stopping": true,
+  "encoder_attention_heads": 16,
+  "encoder_ffn_dim": 4096,
+  "encoder_layerdrop": 0.0,
+  "encoder_layers": 12,
+  "eos_token_id": 2,
+  "force_bos_token_to_be_generated": true,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "gradient_checkpointing": false,
+  "id2label": {
+    "0": "LABEL_0",
+    "1": "LABEL_1",
+    "2": "LABEL_2"
+  },
+  "init_std": 0.02,
+  "is_encoder_decoder": true,
+  "label2id": {
+    "LABEL_0": 0,
+    "LABEL_1": 1,
+    "LABEL_2": 2
+  },
+  "length_penalty": 2.0,
+  "max_length": 142,
+  "max_position_embeddings": 1024,
+  "min_length": 56,
+  "model_type": "bart",
+  "no_repeat_ngram_size": 3,
+  "normalize_before": false,
+  "num_beams": 4,
+  "num_hidden_layers": 12,
+  "output_past": true,
+  "pad_token_id": 1,
+  "prefix": " ",
+  "scale_embedding": false,
+  "task_specific_params": {
+    "summarization": {
+      "early_stopping": true,
+      "length_penalty": 2.0,
+      "max_length": 142,
+      "min_length": 56,
+      "no_repeat_ngram_size": 3,
+      "num_beams": 4
+    }
+  },
+  "transformers_version": "4.21.3",
+  "use_cache": true,
+  "vocab_size": 50264
+}
+
+Didn't find file /workspace/models/hf/facebook-bart-large-cnn/added_tokens.json. We won't load it.
+Didn't find file /workspace/models/hf/facebook-bart-large-cnn/special_tokens_map.json. We won't load it.
+Didn't find file /workspace/models/hf/facebook-bart-large-cnn/tokenizer_config.json. We won't load it.
+loading file /workspace/models/hf/facebook-bart-large-cnn/vocab.json
+loading file /workspace/models/hf/facebook-bart-large-cnn/merges.txt
+loading file /workspace/models/hf/facebook-bart-large-cnn/tokenizer.json
+loading file None
+loading file None
+loading file None
+loading configuration file /workspace/models/hf/facebook-bart-large-cnn/config.json
+Model config BartConfig {
+  "_name_or_path": "/workspace/models/hf/facebook-bart-large-cnn",
+  "_num_labels": 3,
+  "activation_dropout": 0.0,
+  "activation_function": "gelu",
+  "add_final_layer_norm": false,
+  "architectures": [
+    "BartForConditionalGeneration"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 0,
+  "classif_dropout": 0.0,
+  "classifier_dropout": 0.0,
+  "d_model": 1024,
+  "decoder_attention_heads": 16,
+  "decoder_ffn_dim": 4096,
+  "decoder_layerdrop": 0.0,
+  "decoder_layers": 12,
+  "decoder_start_token_id": 2,
+  "dropout": 0.1,
+  "early_stopping": true,
+  "encoder_attention_heads": 16,
+  "encoder_ffn_dim": 4096,
+  "encoder_layerdrop": 0.0,
+  "encoder_layers": 12,
+  "eos_token_id": 2,
+  "force_bos_token_to_be_generated": true,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "gradient_checkpointing": false,
+  "id2label": {
+    "0": "LABEL_0",
+    "1": "LABEL_1",
+    "2": "LABEL_2"
+  },
+  "init_std": 0.02,
+  "is_encoder_decoder": true,
+  "label2id": {
+    "LABEL_0": 0,
+    "LABEL_1": 1,
+    "LABEL_2": 2
+  },
+  "length_penalty": 2.0,
+  "max_length": 142,
+  "max_position_embeddings": 1024,
+  "min_length": 56,
+  "model_type": "bart",
+  "no_repeat_ngram_size": 3,
+  "normalize_before": false,
+  "num_beams": 4,
+  "num_hidden_layers": 12,
+  "output_past": true,
+  "pad_token_id": 1,
+  "prefix": " ",
+  "scale_embedding": false,
+  "task_specific_params": {
+    "summarization": {
+      "early_stopping": true,
+      "length_penalty": 2.0,
+      "max_length": 142,
+      "min_length": 56,
+      "no_repeat_ngram_size": 3,
+      "num_beams": 4
+    }
+  },
+  "transformers_version": "4.21.3",
+  "use_cache": true,
+  "vocab_size": 50264
+}
+
+loading weights file /workspace/models/hf/facebook-bart-large-cnn/pytorch_model.bin
+All model checkpoint weights were used when initializing BartForConditionalGeneration.
+
+All the weights of BartForConditionalGeneration were initialized from the model checkpoint at /workspace/models/hf/facebook-bart-large-cnn.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use BartForConditionalGeneration for predictions without further training.
+init quantize emb
+05/10/2026 11:39:13 - INFO - __main__ -   Sample 14805 of the training set: {'input_ids': [0, 1640, 16256, 43, 480, 1603, 34, 45, 5372, 7, 517, 143, 9, 63, 32348, 149, 5, 208, 16191, 19710, 6, 41, 10377, 781, 26, 296, 4, 22, 3084, 5051, 32348, 24318, 149, 5, 21259, 11, 5, 94, 80, 360, 8, 1085, 16, 1904, 13, 5, 567, 360, 1169, 60, 26, 6916, 1448, 12, 6407, 7352, 352, 6, 5, 7591, 736, 9, 5, 208, 16191, 19710, 4305, 4, 22, 1121, 645, 13, 143, 9425, 4128, 7, 2116, 5, 21259, 6, 49, 168, 782, 7, 2142, 10, 2069, 7, 5, 2803, 9, 4545, 8, 5, 2803, 9, 3125, 4702, 149, 49, 8885, 11, 14794, 13, 2846, 8, 683, 2033, 6, 5, 32348, 64, 2116, 5, 21259, 4, 53, 13, 122, 6, 117, 781, 2069, 34, 57, 4813, 60, 37, 26, 4, 20, 709, 376, 10, 183, 71, 3465, 3125, 692, 5080, 1023, 32649, 16129, 397, 26, 80, 5051, 32348, 58, 421, 7, 1323, 149, 5, 208, 16191, 19710, 307, 363, 15, 49, 169, 7, 1854, 4, 22, 713, 16, 10, 29995, 14, 14476, 14, 5, 1403, 12, 22326, 8, 23799, 4086, 9, 5, 23571, 16, 1197, 31, 183, 7, 183, 60, 37, 26, 4, 22, 713, 2594, 71, 5, 5051, 394, 18, 825, 7, 2077, 8398, 8, 39, 4353, 33002, 89, 1567, 1870, 72, 20, 3465, 4545, 2803, 26, 1870, 21, 4872, 5, 2079, 9, 5, 5051, 7446, 8, 14588, 63, 4181, 4, 374, 5, 266, 6, 681, 850, 24795, 13, 10, 86, 15, 307, 4, 20, 208, 16191, 19710, 4542, 25, 10, 762, 1323, 1073, 10564, 13, 758, 721, 6, 2455, 7446, 7, 11821, 227, 1005, 8, 1817, 396, 519, 7, 213, 70, 5, 169, 198, 5, 6268, 9, 2497, 8012, 11, 391, 1327, 4, 19079, 9, 6745, 9, 681, 517, 149, 5, 208, 16191, 358, 183, 15, 5, 169, 7, 258, 1005, 8, 369, 730, 4, 5051, 5027, 503, 33, 26, 5, 2342, 1242, 4699, 34, 19179, 15, 10, 76, 3479, 1058, 2511, 14, 1239, 24, 7, 5, 4602, 9, 24215, 7, 5, 1211, 3939, 8, 149, 5, 208, 16191, 19710, 88, 5, 11965, 3939, 6, 309, 7, 5, 4126, 12, 24132, 274, 2726, 491, 3131, 4, 1590, 5, 2511, 6, 5051, 5027, 12260, 2580, 32, 528, 7, 28, 5389, 8, 2460, 13, 5261, 5, 247, 18, 9145, 7446, 8, 681, 6013, 268, 4, 5051, 5027, 230, 119, 10232, 4, 29119, 1614, 119, 4, 16128, 1452, 27266, 9867, 219, 1512, 26, 12260, 2580, 74, 28, 5389, 7, 1744, 7446, 8, 6013, 268, 122, 223, 1856, 9, 908, 31, 21271, 34941, 6, 274, 2726, 26, 4, 4657, 9, 5, 2511, 21, 67, 7, 7365, 2316, 4, 9867, 219, 1512, 26, 5, 7446, 58, 11, 5, 976, 11, 22, 642, 4668, 6439, 9, 10, 2247, 36, 29317, 43, 2621, 11, 5, 239, 14460, 8, 7, 19752, 84, 5192, 3405, 8, 10152, 84, 1579, 9, 1987, 8, 9330, 7, 5, 2174, 749, 72, 16129, 397, 26, 307, 14, 1870, 18, 4181, 197, 582, 1503, 71, 5, 340, 9, 5, 23571, 563, 7, 2914, 5, 208, 16191, 7586, 22, 170, 1057, 5, 758, 435, 7, 1760, 2078, 5846, 19, 8964, 136, 5, 5051, 11570, 29876, 6, 1887, 7, 26694, 877, 5, 1068, 11, 5, 443, 6, 8, 342, 5, 23571, 11, 49, 317, 60, 37, 26, 4, 16129, 397, 18, 1450, 58, 45, 98, 203, 10, 1856, 53, 10, 3874, 12, 658, 486, 59, 10, 22, 605, 17649, 154, 709, 60, 26, 10, 949, 168, 781, 54, 21, 45, 2006, 142, 37, 21, 45, 8672, 7, 1994, 7, 5, 433, 4, 20, 781, 26, 16129, 397, 21, 22, 32981, 2577, 24, 25, 10, 1539, 7, 5, 580, 72, 3465, 1489, 692, 1664, 26464, 757, 8580, 18, 558, 1661, 117, 3169, 1129, 4, 3480, 18, 2363, 27381, 6, 4141, 625, 2060, 196, 833, 8, 5226, 3410, 10959, 3162, 7, 42, 266, 479, 2], 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 'labels': [0, 31303, 3125, 692, 5080, 1023, 32649, 16129, 397, 161, 80, 5051, 32348, 32, 421, 7, 1323, 149, 5, 208, 16191, 19710, 479, 50118, 3084, 2069, 34, 57, 156, 30, 1603, 13, 21, 7903, 7, 2116, 5, 21259, 479, 50118, 133, 3465, 4545, 2803, 161, 24, 16, 4872, 5, 2079, 9, 5051, 7446, 479, 2]}.
+/workspace/dq-bart/.venv/lib/python3.10/site-packages/transformers/optimization.py:306: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  warnings.warn(
+/workspace/dq-bart/run_summarization_no_trainer.py:468: FutureWarning: load_metric is deprecated and will be removed in the next major version of datasets. Use 'evaluate.load' instead, from the new library 🤗 Evaluate: https://huggingface.co/docs/evaluate
+  metric = load_metric("rouge")
+05/10/2026 11:39:20 - INFO - __main__ -   ***** Running training *****
+05/10/2026 11:39:20 - INFO - __main__ -     Num examples = 100000
+05/10/2026 11:39:20 - INFO - __main__ -     Num Epochs = 1
+05/10/2026 11:39:20 - INFO - __main__ -     Instantaneous batch size per device = 1
+05/10/2026 11:39:20 - INFO - __main__ -     Total train batch size = 1
+05/10/2026 11:39:20 - INFO - __main__ -     Gradient Accumulation steps = 1
+05/10/2026 11:39:20 - INFO - __main__ -     Total optimization steps = 50
+05/10/2026 11:39:20 - INFO - __main__ -     student encoder layers = 3
+05/10/2026 11:39:20 - INFO - __main__ -     student decoder layers = 1
+05/10/2026 11:39:20 - INFO - __main__ -     student encoder mapping {0: 0, 1: 2, 2: 5}
+05/10/2026 11:39:20 - INFO - __main__ -     student decoder mapping {0: 5}
+
+  0%|          | 0/50 [00:00<?, ?it/s]
+  2%|▏         | 1/50 [00:08<06:41,  8.19s/it]
+  4%|▍         | 2/50 [00:19<07:52,  9.84s/it]
+  6%|▌         | 3/50 [00:30<08:07, 10.37s/it]
+  8%|▊         | 4/50 [00:39<07:35,  9.91s/it]
+ 10%|█         | 5/50 [00:46<06:42,  8.93s/it]
+ 12%|█▏        | 6/50 [00:56<06:45,  9.22s/it]
+ 14%|█▍        | 7/50 [01:11<07:55, 11.05s/it]
+ 16%|█▌        | 8/50 [01:27<08:54, 12.72s/it]
+ 18%|█▊        | 9/50 [01:34<07:29, 10.97s/it]
+ 20%|██        | 10/50 [01:45<07:12, 10.82s/it]
+ 22%|██▏       | 11/50 [01:58<07:29, 11.52s/it]
+ 24%|██▍       | 12/50 [02:13<07:59, 12.61s/it]
+ 26%|██▌       | 13/50 [02:21<06:52, 11.15s/it]
+ 28%|██▊       | 14/50 [02:31<06:30, 10.84s/it]
+ 30%|███       | 15/50 [02:40<06:07, 10.49s/it]
+ 32%|███▏      | 16/50 [02:50<05:52, 10.38s/it]
+ 34%|███▍      | 17/50 [03:00<05:31, 10.05s/it]
+ 36%|███▌      | 18/50 [03:05<04:38,  8.71s/it]
+ 38%|███▊      | 19/50 [03:10<03:56,  7.63s/it]
+ 40%|████      | 20/50 [03:17<03:37,  7.26s/it]
+ 42%|████▏     | 21/50 [03:27<03:56,  8.17s/it]
+ 44%|████▍     | 22/50 [03:36<03:58,  8.51s/it]
+ 46%|████▌     | 23/50 [03:44<03:43,  8.27s/it]
+ 48%|████▊     | 24/50 [03:54<03:49,  8.82s/it]
+ 50%|█████     | 25/50 [04:00<03:17,  7.91s/it]
+ 52%|█████▏    | 26/50 [04:09<03:17,  8.24s/it]
+ 54%|█████▍    | 27/50 [04:20<03:30,  9.16s/it]
+ 56%|█████▌    | 28/50 [04:30<03:23,  9.23s/it]
+ 58%|█████▊    | 29/50 [04:40<03:20,  9.55s/it]
+ 60%|██████    | 30/50 [04:50<03:12,  9.63s/it]
+ 62%|██████▏   | 31/50 [04:59<02:58,  9.38s/it]
+ 64%|██████▍   | 32/50 [05:09<02:54,  9.71s/it]
+ 66%|██████▌   | 33/50 [05:20<02:48,  9.92s/it]
+ 68%|██████▊   | 34/50 [05:31<02:43, 10.24s/it]
+ 70%|███████   | 35/50 [05:40<02:28,  9.90s/it]
+ 72%|███████▏  | 36/50 [05:49<02:15,  9.69s/it]
+ 74%|███████▍  | 37/50 [05:57<02:01,  9.33s/it]
+ 76%|███████▌  | 38/50 [06:04<01:40,  8.40s/it]
+ 78%|███████▊  | 39/50 [06:10<01:24,  7.68s/it]
+ 80%|████████  | 40/50 [06:20<01:26,  8.64s/it]
+ 82%|████████▏ | 41/50 [06:30<01:19,  8.81s/it]
+ 84%|████████▍ | 42/50 [06:38<01:10,  8.78s/it]
+ 86%|████████▌ | 43/50 [06:50<01:07,  9.59s/it]
+ 88%|████████▊ | 44/50 [07:00<00:58,  9.75s/it]
+ 90%|█████████ | 45/50 [07:10<00:49,  9.94s/it]
+ 92%|█████████▏| 46/50 [07:18<00:36,  9.21s/it]
+ 94%|█████████▍| 47/50 [07:24<00:24,  8.28s/it]
+ 96%|█████████▌| 48/50 [07:31<00:15,  7.86s/it]
+ 98%|█████████▊| 49/50 [07:40<00:08,  8.26s/it]
+100%|██████████| 50/50 [07:46<00:00,  7.56s/it]
+
+  0%|          | 0/2500 [00:00<?, ?it/s][A
+
+  0%|          | 1/2500 [02:10<90:21:08, 130.16s/it][A
+
+  0%|          | 2/2500 [04:16<88:42:32, 127.84s/it][A
+
+  0%|          | 3/2500 [05:12<65:55:42, 95.05s/it] [A
+
+  0%|          | 4/2500 [06:59<69:16:35, 99.92s/it][A
+
+  0%|          | 5/2500 [09:06<76:04:03, 109.76s/it][A
+
+  0%|          | 6/2500 [11:16<80:42:53, 116.51s/it][A
+
+  0%|          | 7/2500 [13:20<82:21:05, 118.92s/it][A
+
+  0%|          | 8/2500 [15:13<80:58:29, 116.98s/it][A
+
+  0%|          | 9/2500 [17:18<82:40:24, 119.48s/it][A
+
+  0%|          | 10/2500 [19:25<84:16:00, 121.83s/it][A
+  0%|          | 10/2500 [19:25<80:36:23, 116.54s/it]
+05/10/2026 12:06:32 - INFO - __main__ -   evaluation result: {'eval/rouge1': 0.1042, 'eval/rouge2': 0.0, 'eval/rougeL': 0.0694, 'eval/rougeLsum': 0.1042} 
+Configuration saved in /workspace/models/dq-bart/E_DQBART_8BIT_SMOKE/config.json
+Model weights saved in /workspace/models/dq-bart/E_DQBART_8BIT_SMOKE/pytorch_model.bin
+
+100%|██████████| 50/50 [27:13<00:00, 32.68s/it]
+[1;34mwandb[0m: 
+[1;34mwandb[0m: 🚀 View run [33mE_DQBART_8BIT_SMOKE[0m at: [34mhttps://wandb.ai/iankirby1991-university-of-galway/dq-bart/runs/z7uuu1oc[0m
+[1;34mwandb[0m: Find logs at: [1;35mwandb/run-20260510_113901-z7uuu1oc/logs[0m

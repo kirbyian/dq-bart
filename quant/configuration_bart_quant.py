@@ -16,6 +16,7 @@
 import warnings
 from collections import OrderedDict
 from typing import Mapping
+import os
 
 import transformers
 
@@ -23,7 +24,12 @@ from transformers.configuration_utils import PretrainedConfig
 from transformers.onnx import OnnxConfigWithPast
 from transformers.utils import logging
 
-from huggingface_hub import hf_hub_url, cached_download
+from huggingface_hub import hf_hub_url, hf_hub_download
+
+
+def cached_download(url, *args, **kwargs):
+    return hf_hub_download(url)
+
 
 import json
 import sys
@@ -217,11 +223,13 @@ class BartConfig(PretrainedConfig):
 
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):
-        config_file = cached_download(hf_hub_url(pretrained_model_name_or_path, CONFIG_NAME))
+        if os.path.isdir(pretrained_model_name_or_path):
+            config_file = os.path.join(pretrained_model_name_or_path, CONFIG_NAME)
+        else:
+            config_file = cached_download(hf_hub_url(pretrained_model_name_or_path, CONFIG_NAME))
         logger.info("loading configuration file {}".format(config_file))
         # Load config
-        config = cls.from_json_file(config_file)  
-        
+        config = cls.from_json_file(config_file)
         # Update config with kwargs if needed
         to_remove = []
         for key, value in kwargs.items():
@@ -259,11 +267,11 @@ class BartConfig(PretrainedConfig):
         output = copy.deepcopy(self.__dict__)
         return output
 
-    def to_json_string(self):
+    def to_json_string(self, use_diff=True):
         """Serializes this instance to a JSON string."""
         return json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n"
 
-    def to_json_file(self, json_file_path):
+    def to_json_file(self, json_file_path, use_diff=True):
         """ Save this instance to a json file."""
         with open(json_file_path, "w", encoding='utf-8') as writer:
             writer.write(self.to_json_string())

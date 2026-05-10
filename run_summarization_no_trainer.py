@@ -16,8 +16,13 @@
 # limitations under the License.
 """
 Fine-tuning a 🤗 Transformers model on summarization.
+
+Patched for thesis reproduction:
+- Supports loading Hugging Face DatasetDict from disk via --dataset_name /path/to/dataset
+- Treats local dataset path as cnn_dailymail for generation parameters and column mapping
+- Does not overwrite --output_dir when explicitly provided
+- Removes duplicated dataset loading
 """
-# You can also adapt this script on your own summarization task. Pointers for this are left as comments.
 
 import argparse
 import logging
@@ -27,12 +32,13 @@ import random
 import sys
 
 import datasets
+from datasets import DatasetDict, load_dataset, load_from_disk, load_metric
 import nltk
 import numpy as np
 import torch
 import transformers
 from accelerate import Accelerator
-from datasets import load_dataset, load_metric
+from datasets import load_dataset, load_from_disk, load_metric
 from filelock import FileLock
 from torch.nn import MSELoss
 from torch.utils.data.dataloader import DataLoader
@@ -96,6 +102,16 @@ distill_mappings = {1: {0: 5},
                     }
 distill_mappings_new = {1: {0: 0}}
 NUMS = [str(i) for i in range(6)]
+
+
+def resolve_dataset_task_name(dataset_name: str | None) -> str | None:
+    """
+    DQ-BART has hardcoded generation settings for known dataset names.
+    If a local saved CNN/DailyMail DatasetDict path is passed, treat it as cnn_dailymail.
+    """
+    if dataset_name is not None and os.path.exists(dataset_name):
+        return "cnn_dailymail"
+    return dataset_name
 
 
 def parse_args():
@@ -285,8 +301,9 @@ def parse_args():
     parser.add_argument('--local_rank', default=0)
     parser.add_argument('--weighted', action='store_true')
     parser.add_argument('--new_distill_map', action='store_true')
-
+    parser.add_argument("--max_eval_batches", type=int, default=None)
     args = parser.parse_args()
+    dataset_task_name = resolve_dataset_task_name(args.dataset_name)
 
     # Sanity checks
     if args.new_distill_map:
@@ -301,41 +318,73 @@ def parse_args():
             extension = args.validation_file.split(".")[-1]
             assert extension in ["csv", "json"], "`validation_file` should be a csv or a json file."
 
-    args.output_dir = f'./output_{args.dataset_name}/{args.weight_bits}_{args.input_bits}_{args.distill_encoder}_{args.distill_decoder}_{args.num_train_epochs}_{args.learning_rate}_fp16'
+    if args.output_dir is None:
+        safe_dataset_name = (dataset_task_name or "custom").replace("/", "_")
+        args.output_dir = (
+            f"./output_{safe_dataset_name}/"
+            f"{args.weight_bits}_{args.input_bits}_{args.distill_encoder}_{args.distill_decoder}_"
+            f"{args.num_train_epochs}_{args.learning_rate}_fp16"
+        )
+
     if args.new_distill_map:
-        args.output_dir += '_new'
+        args.output_dir += "_new"
     if (not args.pred_distill) and (not args.intermediate_distill):
-        args.output_dir += '_nodis'
+        args.output_dir += "_nodis"
 
     if args.student_model is None:
         args.student_model = args.model_name_or_path
     if args.teacher_model is None:
         args.teacher_model = args.model_name_or_path
 
-    if args.dataset_name == "xsum":
+    if dataset_task_name == "xsum":
         args.length_penalty = 1.0
         args.max_length = 62
         args.min_length = 11
         args.num_beams = 6
-    elif args.dataset_name == "cnn_dailymail":
+    elif dataset_task_name == "cnn_dailymail":
         args.length_penalty = 2.0
         args.max_length = 142
         args.min_length = 56
         args.num_beams = 4
     else:
-        assert False, f'args error: dataset name {args.dataset_name}'
+        assert False, f"args error: dataset name {args.dataset_name}"
+
     if args.weighted:
         args.task_weight = 1
         args.logits_weight = 0.8
         args.hid_weight = 3
-        args.output_dir += '_weighted'
+        args.output_dir += "_weighted"
     else:
         args.task_weight = 1
         args.logits_weight = 1
         args.hid_weight = 1
-    if args.output_dir is not None:
-        os.makedirs(args.output_dir, exist_ok=True)
+
+    os.makedirs(args.output_dir, exist_ok=True)
+    args.dataset_task_name = dataset_task_name
     return args
+
+def load_raw_datasets(args, logger):
+    if args.dataset_name is not None:
+        if os.path.exists(args.dataset_name):
+            logger.info(f"Loading dataset splits from disk: {args.dataset_name}")
+
+            return DatasetDict({
+                "train": load_from_disk(os.path.join(args.dataset_name, "train")),
+                "validation": load_from_disk(os.path.join(args.dataset_name, "validation")),
+                "test": load_from_disk(os.path.join(args.dataset_name, "test")),
+            })
+
+        logger.info(f"Loading dataset from Hugging Face: {args.dataset_name}")
+        return load_dataset(args.dataset_name, args.dataset_config_name)
+
+    data_files = {}
+    if args.train_file is not None:
+        data_files["train"] = args.train_file
+    if args.validation_file is not None:
+        data_files["validation"] = args.validation_file
+
+    extension = args.train_file.split(".")[-1]
+    return load_dataset(extension, data_files=data_files)
 
 
 def main():
@@ -388,33 +437,8 @@ def main():
     if args.seed is not None:
         set_seed(args.seed)
 
-    # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
-    # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
-    # (the dataset will be downloaded automatically from the datasets Hub).
-    #
-    # For CSV/JSON files, this script will use the column called 'text' or the first column if no column called
-    # 'text' is found. You can easily tweak this behavior (see below).
-    #
-    # In distributed training, the load_dataset function guarantee that only one local process can concurrently
-    # download the dataset.
-    if args.dataset_name is not None:
-        # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset(args.dataset_name, args.dataset_config_name)
-    else:
-        data_files = {}
-        if args.train_file is not None:
-            data_files["train"] = args.train_file
-        if args.validation_file is not None:
-            data_files["validation"] = args.validation_file
-        extension = args.train_file.split(".")[-1]
-        raw_datasets = load_dataset(extension, data_files=data_files)
-    # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
-    # https://huggingface.co/docs/datasets/loading_datasets.html.
+    raw_datasets = load_raw_datasets(args, logger)
 
-    # Load pretrained model and tokenizer
-    #
-    # In distributed training, the .from_pretrained methods guarantee that only one local process can concurrently
-    # download model & vocab.
     if args.config_name:
         config = AutoConfig.from_pretrained(args.config_name)
     elif args.model_name_or_path:
@@ -541,7 +565,7 @@ def main():
         remove_columns=column_names,
         load_from_cache_file=not args.overwrite_cache,
         desc="Running tokenizer on dataset",
-        num_proc=10
+        num_proc=args.preprocessing_num_workers or 10,
     )
 
     train_dataset = processed_datasets["train"]
@@ -776,6 +800,8 @@ def main():
                     break
 
             for step, batch in enumerate(tqdm(eval_dataloader)):
+                if args.max_eval_batches is not None and step >= args.max_eval_batches:
+                    break
                 with torch.no_grad():
                     generated_tokens = accelerator.unwrap_model(student_model).generate(
                         batch["input_ids"],
