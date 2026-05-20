@@ -21,7 +21,10 @@ import os
 import transformers
 
 from transformers.configuration_utils import PretrainedConfig
-from transformers.onnx import OnnxConfigWithPast
+try:
+    from transformers.onnx import OnnxConfigWithPast
+except ModuleNotFoundError:
+    OnnxConfigWithPast = object
 from transformers.utils import logging
 
 from huggingface_hub import hf_hub_url, hf_hub_download
@@ -165,7 +168,7 @@ class BartConfig(PretrainedConfig):
         input_bits=8,
         weight_bits=2,
         clip_val=2.5,
-        **kwargs
+        **kwarg
     ):
         super().__init__(
             num_labels=num_labels,
@@ -175,7 +178,7 @@ class BartConfig(PretrainedConfig):
             is_encoder_decoder=is_encoder_decoder,
             decoder_start_token_id=decoder_start_token_id,
             forced_eos_token_id=forced_eos_token_id,
-            **kwargs,
+            **kwarg
         )
 
         self.vocab_size = vocab_size
@@ -204,6 +207,12 @@ class BartConfig(PretrainedConfig):
         self.input_bits = input_bits
         self.weight_bits = weight_bits
         self.clip_val = clip_val
+        self.forced_bos_token_id = kwarg.pop("forced_bos_token_id", 0),
+        self.forced_eos_token_id = kwarg.pop("forced_eos_token_id", 2),
+        self.decoder_start_token_id = kwarg.pop("decoder_start_token_id", 2),
+        self.eos_token_id = kwarg.pop("eos_token_id", 2),
+        self.pad_token_id = kwarg.pop("pad_token_id", 1),
+        self.bos_token_id = kwarg.pop("bos_token_id", 0),
 
         # ensure backward compatibility for BART CNN models
         if self.forced_bos_token_id is None and kwargs.get("force_bos_token_to_be_generated", False):
