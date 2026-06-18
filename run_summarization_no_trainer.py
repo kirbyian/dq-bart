@@ -639,7 +639,7 @@ def main():
     )
 
     # Metric
-    metric = load_metric("rouge")
+    metric = load_metric("rouge", trust_remote_code=True)
 
     # Train!
     total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
