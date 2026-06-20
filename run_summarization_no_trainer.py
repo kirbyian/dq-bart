@@ -469,7 +469,7 @@ def main():
             config=config,
         )
 
-        student_config = QBartConfig.from_pretrained(args.teacher_model,
+        student_config = QBartConfig.from_pretrained(args.student_model,
                                                      quantize_act=True,
                                                      weight_bits=args.weight_bits,
                                                      input_bits=args.input_bits,
@@ -477,6 +477,9 @@ def main():
                                                      decoder_layers=args.distill_decoder,
                                                      encoder_layers=args.distill_encoder)
         student_model = QBart(student_config)
+
+        params = sum(p.numel() for p in student_model.parameters())
+        print(f"Student params: {params:,}")
 
         dst_dict = student_model.state_dict()  # Initilized student model state dict, needs loading weights
         src_dict = teacher_model.state_dict()  # Pretrained teacher model state dict, whose weights will be loaded
@@ -492,10 +495,12 @@ def main():
                 mapped_key = key[:21] + new_idx + key[22:]  # Get the full teacher layer key
                 if mapped_key in src_dict.keys():  # Exclude the cases
                     # which does not exist in the teacher model
-                    dst_dict[key] = src_dict[mapped_key]  # Load the weights of the layer
+                    if dst_dict[key].shape == src_dict[mapped_key].shape:
+                        dst_dict[key] = src_dict[mapped_key] # Load the weights of the layer
             else:
                 if key in src_dict.keys():  # Load the weights of non-encoder/decoder layers
-                    dst_dict[key] = src_dict[key]
+                    if dst_dict[key].shape == src_dict[key].shape:
+                        dst_dict[key] = src_dict[key]
 
         student_model.load_state_dict(dst_dict, strict=False)  # Pass the dict to the student model
 
@@ -665,7 +670,7 @@ def main():
     completed_steps = 0
     loss_mse = MSELoss()
     assert teacher_model.training == False
-    prev = 0.0
+    prev = -1
 
     gen_kwargs = {
         "length_penalty": args.length_penalty,
@@ -829,7 +834,7 @@ def main():
                     decoded_preds = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
                     decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
                     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-
+                    #print(decoded_preds[:3])
                     metric.add_batch(predictions=decoded_preds, references=decoded_labels)
 
             result = metric.compute(use_stemmer=True)
@@ -845,7 +850,7 @@ def main():
             if args.output_dir is not None and res_rougeL > prev:
                 accelerator.wait_for_everyone()
                 unwrapped_model = accelerator.unwrap_model(student_model)
-                unwrapped_model.save_pretrained(args.output_dir, save_function=accelerator.save)
+                unwrapped_model.save_pretrained(args.output_dir, save_function=accelerator.save,safe_serialization=False)
                 prev = res_rougeL
 
                 # load best model and evaluate on testset
